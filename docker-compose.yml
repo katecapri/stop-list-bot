@@ -1,0 +1,54 @@
+version: "3.9"
+
+x-project-default: &project-default
+  env_file: .env
+  restart: unless-stopped
+  image: ${STOP_LIST_BOT_PROJECT_IMAGE_NAME}
+  environment:
+    DB_USERNAME: ${STOP_LIST_BOT_DB_USERNAME}
+    DB_PASSWORD: ${STOP_LIST_BOT_DB_PASSWORD}
+    DB_DATABASE: ${STOP_LIST_BOT_DB_NAME}
+    DB_PORT: ${STOP_LIST_BOT_DB_PORT}
+    DB_HOST: ${STOP_LIST_BOT_DB_HOST}
+    CELERY_BROKER_URL: ${STOP_LIST_BOT_CELERY_BROKER_URL}
+    CELERY_RESULT_BACKEND: ${STOP_LIST_BOT_CELERY_RESULT_BACKEND}
+    CELERY_BROKER_CONN_RETRY_ON_START: ${STOP_LIST_BOT_CELERY_BROKER_CONN_RETRY_ON_START}
+    CELERY_TIMEZONE: ${STOP_LIST_BOT_CELERY_TIMEZONE}
+    CELERY_ENABLE_UTC: ${STOP_LIST_BOT_CELERY_ENABLE_UTC}
+    CELERY_TASK_TIME_LIMIT: ${STOP_LIST_BOT_CELERY_TASK_TIME_LIMIT}
+    TELEGRAM_TOKEN: ${STOP_LIST_BOT_TELEGRAM_TOKEN}
+    IIKO_API_LOGIN: ${STOP_LIST_BOT_IIKO_API_LOGIN}
+
+
+services:
+
+  stop_list_bot-project:
+    <<: *project-default
+    command: /start_project
+
+  redis:
+    env_file: .env
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  tasks-workers:
+    <<: *project-default
+    command: /start_celery_worker
+
+  tasks-scheduler:
+    <<: *project-default
+    command: /start_celery_beat
+
+
+networks:
+  default:
+    name: ${STOP_LIST_BOT_NETWORK}
+    external: true
+
+volumes:
+  redis_data:
+    name: redis_data
+  rabbitmq_data:
+    name: rabbitmq_data

@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+
+  stop_list_bot-db:
+    env_file: .env
+    image: ${STOP_LIST_BOT_DB_IMAGE_NAME}
+    ports:
+      - "127.0.0.1:5433:${STOP_LIST_BOT_DB_PORT}"
+    environment:
+      POSTGRES_USER: ${STOP_LIST_BOT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${STOP_LIST_BOT_DB_PASSWORD}
+      POSTGRES_DB: ${STOP_LIST_BOT_DB_NAME}
+
+networks:
+  default:
+    name: ${STOP_LIST_BOT_NETWORK}
+    external: true
